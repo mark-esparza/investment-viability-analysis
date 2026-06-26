@@ -1,0 +1,28 @@
+# Generated analysis outputs (reproducible via the CLI; examples/ holds curated copies)
+out/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# EDGAR on-disk cache
+.cache/
+
+# Environments
+.venv/
+venv/
+env/
+
+# Editor / OS / agent
+.claude/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

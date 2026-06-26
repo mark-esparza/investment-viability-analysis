@@ -1,0 +1,15 @@
+# Core (required)
+requests>=2.31
+openpyxl>=3.1
+
+# Private/SMB document parsing (digital PDF statements + tax forms). Required for
+# the `parse` command; manual/JSON `upload` does not need it.
+pdfplumber>=0.11
+
+# Optional OCR fallback for scanned/image-only PDFs (needs Tesseract + Poppler
+# system binaries too):
+# pytesseract>=0.3
+# pdf2image>=1.17
+
+# Dev / test
+pytest>=8.0

@@ -1,0 +1,66 @@
+{
+  "name": "Riverside Coffee Roasters LLC",
+  "mode": "private",
+  "description": "A small specialty coffee roaster and three-location cafe operator. Figures are owner-supplied (P&L, balance sheet, cash-flow) and have been reviewed via the confirmation grid before analysis.",
+  "periods": [
+    {
+      "label": "FY22", "fiscal_year": 2022, "source": "Upload: 2022 P&L + BS + CF",
+      "revenue": 1450000, "cogs": 595000, "gross_profit": 855000,
+      "operating_expenses": 700000, "depreciation": 45000,
+      "ebit": 110000, "interest_expense": 28000, "ebt": 82000,
+      "taxes": 0, "net_income": 82000,
+      "cash": 60000, "accounts_receivable": 35000, "inventory": 70000,
+      "other_current_assets": 10000, "current_assets": 175000,
+      "net_fixed_assets": 420000, "total_assets": 595000,
+      "accounts_payable": 65000, "other_current_liabilities": 25000,
+      "current_liabilities": 90000, "long_term_debt": 300000,
+      "total_liabilities": 390000, "common_equity": 205000, "total_equity": 205000,
+      "cfo": 120000, "cfi": -60000, "cff": -45000, "net_change_cash": 15000,
+      "capex": 60000, "lease_payments": 36000, "delta_nwc": 12000
+    },
+    {
+      "label": "FY23", "fiscal_year": 2023, "source": "Upload: 2023 P&L + BS + CF",
+      "revenue": 1680000, "cogs": 680000, "gross_profit": 1000000,
+      "operating_expenses": 805000, "depreciation": 48000,
+      "ebit": 147000, "interest_expense": 30000, "ebt": 117000,
+      "taxes": 0, "net_income": 117000,
+      "cash": 85000, "accounts_receivable": 42000, "inventory": 82000,
+      "other_current_assets": 11000, "current_assets": 220000,
+      "net_fixed_assets": 440000, "total_assets": 660000,
+      "accounts_payable": 72000, "other_current_liabilities": 28000,
+      "current_liabilities": 100000, "long_term_debt": 285000,
+      "total_liabilities": 385000, "common_equity": 275000, "total_equity": 275000,
+      "cfo": 158000, "cfi": -68000, "cff": -65000, "net_change_cash": 25000,
+      "capex": 68000, "lease_payments": 36000, "delta_nwc": 15000
+    },
+    {
+      "label": "FY24", "fiscal_year": 2024, "source": "Upload: 2024 P&L + BS + CF",
+      "revenue": 1950000, "cogs": 765000, "gross_profit": 1185000,
+      "operating_expenses": 930000, "depreciation": 52000,
+      "ebit": 203000, "interest_expense": 31000, "ebt": 172000,
+      "taxes": 0, "net_income": 172000,
+      "cash": 130000, "accounts_receivable": 48000, "inventory": 95000,
+      "other_current_assets": 12000, "current_assets": 285000,
+      "net_fixed_assets": 470000, "total_assets": 755000,
+      "accounts_payable": 80000, "other_current_liabilities": 30000,
+      "current_liabilities": 110000, "long_term_debt": 265000,
+      "total_liabilities": 375000, "common_equity": 380000, "total_equity": 380000,
+      "cfo": 205000, "cfi": -82000, "cff": -78000, "net_change_cash": 45000,
+      "capex": 82000, "lease_payments": 36000, "delta_nwc": 18000
+    }
+  ],
+  "assumptions": {
+    "price_per_share": 0,
+    "shares_outstanding": 1000,
+    "book_value_per_share": 380,
+    "dividend_per_share": 0,
+    "dividend_growth_g": 0.08,
+    "risk_free_rate": 0.04,
+    "market_return": 0.10,
+    "beta": 1.3,
+    "required_return_k": 0.14,
+    "tax_rate": 0.21,
+    "flotation_cost": 0.0,
+    "cost_of_debt_pretax": 0.09
+  }
+}
