@@ -20,7 +20,23 @@ Output is two artifacts:
 
 ---
 
-## Quick start
+## Web application
+
+A FastAPI backend serves a single-page UI (the backend is required because SEC
+EDGAR has no browser CORS). Analyze a public ticker or upload statement PDFs,
+review the extracted figures in an editable grid, see the verdict + metrics +
+full report inline, and download the live-formula workbook.
+
+```bash
+pip install -e ".[web,uploads]"        # fastapi, uvicorn, markdown, pdfplumber, ...
+export IVA_SEC_USER_AGENT="InvestmentViability/1.0 you@example.com"
+python -m ivanalysis.webapp            # -> http://127.0.0.1:8000
+```
+
+Endpoints: `POST /api/ticker`, `POST /api/parse` (upload), `POST /api/analyze`
+(confirmed), `GET /api/download/{token}`.
+
+## Quick start (CLI)
 
 ```bash
 pip install -r requirements.txt        # requests + openpyxl (+ pytest)
@@ -131,10 +147,11 @@ src/ivanalysis/
     client.py         # rate-limited, cached, User-Agent'd EDGAR client
     tags.py           # XBRL tag-alias table
     ingest.py         # CompanyFacts -> model (with provenance)
-  uploads/__init__.py # private/SMB: JSON/dict entry, confirm grid, OCR seam
+  uploads/            # private/SMB: JSON entry, confirm grid, PDF/tax-form parsing
   excel/workbook.py   # live-formula .xlsx builder
   report/narrative.py # analyst-style report + viability scoring
-  cli.py              # ticker / upload commands
+  webapp/             # FastAPI backend + single-page web UI
+  cli.py              # ticker / upload / parse commands
 samples/smallbiz.json # worked private-company example
 tests/                # unit + integration tests
 ```
@@ -152,7 +169,6 @@ tests/                # unit + integration tests
 ## Not yet wired (clean seams)
 - OCR binaries (Tesseract + Poppler) for scanned documents — the fallback code
   path exists; only the system binaries are optional.
-- Optional FastAPI/Streamlit front ends and an MCP server exposing
-  `analyze_ticker` / `analyze_uploads` / `build_workbook` (the functions already
-  exist as the public API in `ivanalysis/__init__.py`).
+- An MCP server exposing `analyze_ticker` / `analyze_uploads` / `build_workbook`
+  (the functions already exist as the public API in `ivanalysis/__init__.py`).
 ```

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Investment-Viability Analysis</title>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#ffffff; --ink:#0f172a; --muted:#64748b;
+    --line:#e2e8f0; --brand:#1f4e78; --brand2:#2563eb; --soft:#f1f5f9;
+    --good:#16a34a; --goodbg:#dcfce7; --bad:#dc2626; --badbg:#fee2e2;
+    --warn:#d97706; --warnbg:#fef3c7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.55 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       color:var(--ink);background:#f8fafc}
+  header{background:linear-gradient(135deg,#1f4e78,#2563eb);color:#fff;padding:26px 22px}
+  header h1{margin:0 0 4px;font-size:22px}
+  header p{margin:0;opacity:.9;font-size:13.5px}
+  .wrap{max-width:1080px;margin:0 auto;padding:22px}
+  .disclaimer{background:var(--warnbg);color:#7c4a03;border:1px solid #fde68a;
+       border-radius:8px;padding:9px 12px;font-size:12.5px;margin:14px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+       padding:18px;margin-bottom:18px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+  .tabs{display:flex;gap:6px;margin-bottom:14px}
+  .tab{padding:9px 16px;border:1px solid var(--line);background:#fff;border-radius:9px;
+       cursor:pointer;font-weight:600;color:var(--muted)}
+  .tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 4px}
+  input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;
+       font-size:14px;background:#fff}
+  input:focus,select:focus{outline:2px solid #bfdbfe;border-color:var(--brand2)}
+  .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .btn{background:var(--brand2);color:#fff;border:0;border-radius:9px;padding:11px 20px;
+       font-size:14px;font-weight:700;cursor:pointer}
+  .btn:hover{filter:brightness(1.06)} .btn:disabled{opacity:.55;cursor:wait}
+  .btn.secondary{background:#fff;color:var(--brand2);border:1px solid var(--brand2)}
+  details{margin-top:12px;border:1px dashed var(--line);border-radius:9px;padding:10px 12px}
+  summary{cursor:pointer;font-weight:600;color:var(--brand);font-size:13.5px}
+  .hint{font-size:11.5px;color:var(--muted);font-weight:400}
+  .err{background:var(--badbg);color:#991b1b;border:1px solid #fecaca;border-radius:8px;
+       padding:10px 12px;margin-top:12px;display:none;white-space:pre-wrap}
+  .badge{display:inline-block;padding:6px 14px;border-radius:999px;font-weight:800;
+       letter-spacing:.3px;font-size:14px}
+  .v-VIABLE{background:var(--goodbg);color:var(--good)}
+  .v-CONDITIONAL{background:var(--warnbg);color:var(--warn)}
+  .v-NOT.VIABLE,.v-NOTVIABLE{background:var(--badbg);color:var(--bad)}
+  .chips span{display:inline-block;background:var(--soft);border:1px solid var(--line);
+       border-radius:7px;padding:3px 9px;margin:0 6px 6px 0;font-size:12.5px;color:var(--muted)}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left}
+  th{background:var(--soft);font-size:12px;color:var(--muted)}
+  .pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .pill.good{background:var(--goodbg);color:var(--good)}
+  .pill.bad{background:var(--badbg);color:var(--bad)}
+  .pill.neu{background:var(--soft);color:var(--muted)}
+  .grid-input{width:100%;padding:5px 6px;font-size:13px}
+  .report{margin-top:8px}
+  .report h1{font-size:19px} .report h2{font-size:16px;margin-top:18px;
+       border-bottom:1px solid var(--line);padding-bottom:4px}
+  .report table{margin:8px 0}
+  .report blockquote{background:var(--warnbg);border-left:4px solid #fbbf24;margin:10px 0;
+       padding:8px 12px;color:#7c4a03;font-size:12.5px;border-radius:0 6px 6px 0}
+  .muted{color:var(--muted);font-size:12.5px}
+  .spinner{display:none;margin-top:12px;color:var(--muted);font-size:13px}
+  #results{display:none}
+  .flex{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header>
+  <h1>Investment-Viability Analysis</h1>
+  <p>SEC EDGAR &amp; uploaded statements &rarr; finance metrics &rarr; live-formula Excel + verdict</p>
+</header>
+
+<div class="wrap">
+  <div class="disclaimer">
+    <b>Educational analysis only — not investment, tax, or legal advice.</b>
+    Every figure ties to an input or a cited SEC filing; missing inputs are excluded, never invented.
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <div class="tab active" data-tab="public" onclick="switchTab('public')">Public company (ticker)</div>
+      <div class="tab" data-tab="upload" onclick="switchTab('upload')">Upload statements (PDF)</div>
+    </div>
+
+    <!-- PUBLIC -->
+    <div id="panel-public">
+      <div class="row">
+        <div><label>Ticker</label><input id="ticker" placeholder="e.g. WMT, AAPL, KO" /></div>
+        <div><label>Fiscal years</label>
+          <select id="years"><option>3</option><option selected>4</option><option>5</option></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPLOAD -->
+    <div id="panel-upload" style="display:none">
+      <div class="row">
+        <div><label>Company name</label><input id="upname" placeholder="e.g. Riverside Coffee Roasters LLC" /></div>
+        <div><label>Statement / tax-form PDFs</label><input id="files" type="file" accept="application/pdf" multiple /></div>
+      </div>
+      <div style="margin-top:12px"><button class="btn secondary" onclick="parseUploads()">Extract figures &rarr; review</button></div>
+      <div id="gridWrap" style="margin-top:14px;display:none">
+        <p class="muted">Review and correct every extracted value before analysis — extraction is never trusted blindly.</p>
+        <div style="overflow:auto"><table id="grid"></table></div>
+      </div>
+    </div>
+
+    <!-- shared assumptions -->
+    <details>
+      <summary>Assumptions (optional — enable CAPM / DCF / valuation)</summary>
+      <div class="row" style="margin-top:10px">
+        <div><label>Risk-free rate Rf <span class="hint">dec</span></label><input class="asn" data-k="risk_free_rate" placeholder="0.04"/></div>
+        <div><label>Market return E(Rm) <span class="hint">dec</span></label><input class="asn" data-k="market_return" placeholder="0.09"/></div>
+        <div><label>Beta</label><input class="asn" data-k="beta" placeholder="1.1"/></div>
+        <div><label>Tax rate T <span class="hint">dec</span></label><input class="asn" data-k="tax_rate" placeholder="0.21"/></div>
+        <div><label>Price / share</label><input class="asn" data-k="price_per_share" placeholder="24"/></div>
+        <div><label>Book value / share</label><input class="asn" data-k="book_value_per_share" placeholder="7.5"/></div>
+        <div><label>Dividend / share D0</label><input class="asn" data-k="dividend_per_share" placeholder="0.5"/></div>
+        <div><label>Dividend growth g <span class="hint">dec</span></label><input class="asn" data-k="dividend_growth_g" placeholder="0.03"/></div>
+        <div><label>Required return k <span class="hint">dec</span></label><input class="asn" data-k="required_return_k" placeholder="0.09"/></div>
+        <div><label>Pre-tax cost of debt <span class="hint">dec</span></label><input class="asn" data-k="cost_of_debt_pretax" placeholder="0.06"/></div>
+      </div>
+    </details>
+
+    <div style="margin-top:16px" class="flex">
+      <button class="btn" id="goBtn" onclick="analyze()">Analyze</button>
+      <span class="spinner" id="spin">Working…</span>
+    </div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="card" id="results">
+    <div class="flex" style="justify-content:space-between">
+      <div class="flex">
+        <h2 style="margin:0" id="rName"></h2>
+        <span id="rBadge" class="badge"></span>
+      </div>
+      <a id="dl" class="btn" href="#" download>⬇ Download live Excel workbook</a>
+    </div>
+    <p class="muted" id="rScore" style="margin:8px 0 4px"></p>
+    <div class="chips" id="rPeriods"></div>
+
+    <h2 style="font-size:15px;margin-top:14px">Key metrics (latest period)</h2>
+    <div style="overflow:auto"><table id="rMetrics"></table></div>
+
+    <h2 style="font-size:15px;margin-top:18px">Full report</h2>
+    <div class="report" id="rReport"></div>
+  </div>
+
+  <p class="muted" style="text-align:center">
+    Backend calls SEC EDGAR server-side (no browser CORS). Set
+    <code>IVA_SEC_USER_AGENT</code> to your contact per SEC policy.
+  </p>
+</div>
+
+<script>
+let FIELDS = {};        // attr -> friendly label
+let CURRENT_TAB = "public";
+let PARSED = null;       // last parsed upload payload
+
+fetch("/api/fields").then(r=>r.json()).then(d=>FIELDS=d);
+
+function switchTab(t){
+  CURRENT_TAB=t;
+  document.querySelectorAll(".tab").forEach(el=>el.classList.toggle("active",el.dataset.tab===t));
+  document.getElementById("panel-public").style.display = t==="public"?"block":"none";
+  document.getElementById("panel-upload").style.display = t==="upload"?"block":"none";
+}
+function getAssumptions(){
+  const a={};
+  document.querySelectorAll(".asn").forEach(i=>{ if(i.value.trim()!=="") a[i.dataset.k]=i.value.trim(); });
+  return a;
+}
+function showErr(msg){ const e=document.getElementById("err"); e.textContent=msg; e.style.display="block"; }
+function clearErr(){ document.getElementById("err").style.display="none"; }
+function busy(b){ document.getElementById("goBtn").disabled=b; document.getElementById("spin").style.display=b?"inline":"none"; }
+
+async function parseUploads(){
+  clearErr();
+  const files=document.getElementById("files").files;
+  if(!files.length){ showErr("Choose at least one PDF first."); return; }
+  const fd=new FormData();
+  for(const f of files) fd.append("files",f);
+  fd.append("name", document.getElementById("upname").value || "Uploaded Company");
+  try{
+    const r=await fetch("/api/parse",{method:"POST",body:fd});
+    if(!r.ok){ showErr((await r.json()).detail || "Parse failed."); return; }
+    PARSED=await r.json();
+    renderGrid(PARSED);
+  }catch(e){ showErr(String(e)); }
+}
+
+function renderGrid(data){
+  const periods=data.periods||[];
+  if(!periods.length){ showErr("No figures could be extracted — try the manual fields or check the PDF."); return; }
+  // union of attrs present, in model (FIELDS) order
+  const present=new Set(); periods.forEach(p=>Object.keys(p).forEach(k=>{
+    if(!["label","fiscal_year","source"].includes(k)) present.add(k);
+  }));
+  const order=Object.keys(FIELDS).filter(k=>present.has(k));
+  let html="<tr><th>Line item</th>"+periods.map(p=>`<th>${p.label}</th>`).join("")+"</tr>";
+  for(const attr of order){
+    html+=`<tr><td>${FIELDS[attr]||attr}</td>`;
+    periods.forEach((p,i)=>{
+      const v=(p[attr]!=null)?p[attr]:"";
+      html+=`<td><input class="grid-input" data-attr="${attr}" data-i="${i}" value="${v}"/></td>`;
+    });
+    html+="</tr>";
+  }
+  document.getElementById("grid").innerHTML=html;
+  document.getElementById("gridWrap").style.display="block";
+}
+
+function collectGrid(){
+  const periods=PARSED.periods.map(p=>({label:p.label,fiscal_year:p.fiscal_year,source:p.source}));
+  document.querySelectorAll("#grid .grid-input").forEach(inp=>{
+    const v=inp.value.trim(); if(v==="") return;
+    const num=parseFloat(v.replace(/,/g,"")); if(isNaN(num)) return;
+    periods[+inp.dataset.i][inp.dataset.attr]=num;
+  });
+  return {name:document.getElementById("upname").value||PARSED.name||"Uploaded Company",
+          mode:"private", periods, assumptions:getAssumptions()};
+}
+
+async function analyze(){
+  clearErr(); busy(true);
+  try{
+    let res;
+    if(CURRENT_TAB==="public"){
+      const ticker=document.getElementById("ticker").value.trim();
+      if(!ticker){ showErr("Enter a ticker."); busy(false); return; }
+      const body={ticker, years:document.getElementById("years").value, assumptions:getAssumptions()};
+      const r=await fetch("/api/ticker",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+      if(!r.ok){ showErr((await r.json()).detail||"Analysis failed."); busy(false); return; }
+      res=await r.json();
+    }else{
+      if(!PARSED){ showErr("Extract and review the PDF figures first."); busy(false); return; }
+      const r=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(collectGrid())});
+      if(!r.ok){ showErr((await r.json()).detail||"Analysis failed."); busy(false); return; }
+      res=await r.json();
+    }
+    renderResults(res);
+  }catch(e){ showErr(String(e)); }
+  busy(false);
+}
+
+function renderResults(res){
+  document.getElementById("rName").textContent=res.company_name;
+  const b=document.getElementById("rBadge");
+  b.textContent=res.verdict; b.className="badge v-"+res.verdict.replace(/ /g,"");
+  document.getElementById("rScore").textContent=
+    `Passed ${res.points} of ${res.max} viability checks (${res.ratio}%).`;
+  document.getElementById("rPeriods").innerHTML=res.periods.map(p=>`<span>${p}</span>`).join("");
+  document.getElementById("dl").href=res.xlsx_url;
+
+  let mh="<tr><th>Metric</th><th>Category</th><th>Value</th><th>Status</th></tr>";
+  res.metrics.forEach(m=>{
+    const pill=m.healthy===true?`<span class="pill good">healthy</span>`:
+               m.healthy===false?`<span class="pill bad">weak</span>`:
+               `<span class="pill neu">—</span>`;
+    mh+=`<tr><td>${m.name}</td><td class="muted">${m.category}</td><td>${m.value}</td><td>${pill}</td></tr>`;
+  });
+  document.getElementById("rMetrics").innerHTML=mh;
+  document.getElementById("rReport").innerHTML=res.report_html;
+  document.getElementById("results").style.display="block";
+  document.getElementById("results").scrollIntoView({behavior:"smooth"});
+}
+</script>
+</body>
+</html>

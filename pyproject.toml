@@ -15,10 +15,12 @@ dependencies = [
 
 [project.optional-dependencies]
 uploads = ["pdfplumber>=0.11", "pypdf>=4.0"]
+web = ["fastapi>=0.110", "uvicorn[standard]>=0.27", "python-multipart>=0.0.9", "markdown>=3.5"]
 test = ["pytest>=8.0"]
 
 [project.scripts]
 ivanalysis = "ivanalysis.cli:main"
+ivanalysis-web = "ivanalysis.webapp.app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
