@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: investment-viability-analysis
+    runtime: python
+    plan: free
+    buildCommand: pip install -e ".[web,uploads]"
+    startCommand: python -m ivanalysis.webapp
+    envVars:
+      - key: IVA_SEC_USER_AGENT
+        value: "InvestmentViability/1.0 you@example.com"
+      - key: PYTHON_VERSION
+        value: "3.11.9"
