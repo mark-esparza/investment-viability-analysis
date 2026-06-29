@@ -17,6 +17,7 @@ from openpyxl.chart import BarChart, LineChart, Reference
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import absolute_coordinate, get_column_letter, quote_sheetname
 from openpyxl.workbook.defined_name import DefinedName
+from openpyxl.worksheet.page import PageMargins
 
 from ..metrics import run_ratios
 from ..model import BALANCE_FIELDS, CASHFLOW_FIELDS, INCOME_FIELDS, Company, excel_name
@@ -59,6 +60,19 @@ class WorkbookBuilder:
     def _disclaimer_row(ws, row: int, span: int = 6) -> None:
         ws.cell(row=row, column=1, value=DISCLAIMER).font = MUTED
         ws.merge_cells(start_row=row, start_column=1, end_row=row, end_column=span)
+
+    @staticmethod
+    def _setup_print(ws, title_row: int = 3) -> None:
+        """Print-friendly page setup: landscape, fit-to-width, repeating header row."""
+        ws.page_setup.orientation = "landscape"
+        ws.page_setup.fitToWidth = 1
+        ws.page_setup.fitToHeight = 0
+        ws.sheet_properties.pageSetUpPr.fitToPage = True
+        ws.page_margins = PageMargins(left=0.4, right=0.4, top=0.5, bottom=0.5,
+                                       header=0.3, footer=0.3)
+        ws.print_area = f"A1:{get_column_letter(ws.max_column)}{ws.max_row}"
+        ws.print_title_rows = f"{title_row}:{title_row}"
+        ws.oddFooter.center.text = "&P of &N"
 
     # ======================================================================
     def build(self) -> Workbook:
@@ -129,6 +143,7 @@ class WorkbookBuilder:
         for j, p in enumerate(periods):
             ws.cell(row=row, column=2 + j, value=p.source).font = MUTED
         self._disclaimer_row(ws, row + 2, span=1 + len(periods))
+        self._setup_print(ws, title_row=hr)
 
     # ------------------------------------------------------------ Assumptions
     def _sheet_assumptions(self) -> None:
@@ -172,6 +187,7 @@ class WorkbookBuilder:
             ws.cell(row=row, column=3, value=notes.get(attr, "")).font = MUTED
             row += 1
         self._disclaimer_row(ws, row + 1, span=3)
+        self._setup_print(ws, title_row=3)
 
     # ---------------------------------------------------------------- Ratios
     def _sheet_ratios(self) -> None:
@@ -233,6 +249,7 @@ class WorkbookBuilder:
                       "fills reflect loaded data).").font = MUTED
         self._disclaimer_row(ws, row + 3, span=icol)
         self._ratios_rowmap = {per_period[-1][m].name: hr + 1 + m for m in range(n_metrics)}
+        self._setup_print(ws, title_row=hr)
 
     # ------------------------------------------------------------- Valuation
     def _sheet_valuation(self) -> None:
@@ -381,6 +398,7 @@ class WorkbookBuilder:
             ws.cell(row=r, column=2, value=f"={eps_ref}*15").number_format = "#,##0.00"
             r += 1
         self._disclaimer_row(ws, r + 1, span=7)
+        self._setup_print(ws, title_row=1)
 
     # -------------------------------------------------------------- CapBudget
     def _sheet_capbudget(self) -> None:
@@ -493,6 +511,7 @@ class WorkbookBuilder:
             r += 1
         self._npv_profile_range = (prof_hdr, first, r - 1)
         self._disclaimer_row(ws, r + 1, span=7)
+        self._setup_print(ws, title_row=4)
 
     # ----------------------------------------------------------------- Charts
     def _sheet_charts(self) -> None:
@@ -554,6 +573,7 @@ class WorkbookBuilder:
             ws.add_chart(npv_chart, "A40")
 
         self._disclaimer_row(ws, 60, span=6)
+        self._setup_print(ws, title_row=1)
 
 
 def _fmt(unit: str) -> str:

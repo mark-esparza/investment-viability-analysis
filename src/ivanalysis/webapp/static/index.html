@@ -78,6 +78,12 @@
   .spinner{display:none;margin-top:12px;color:var(--muted);font-size:13px}
   #results{display:none}
   .flex{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  @media print{
+    body *{visibility:hidden}
+    #results, #results *{visibility:visible}
+    #results{position:absolute;left:0;top:0;width:100%;display:block !important;border:0;padding:0}
+    #results .btn, #results a{display:none !important}
+  }
 </style>
 </head>
 <body>
@@ -180,7 +186,11 @@
   <div class="card" id="results">
     <div class="flex" style="justify-content:space-between;margin-bottom:14px">
       <h2 class="section" style="margin:0" id="rName"></h2>
-      <a id="dl" class="btn" href="#" download>Download live Excel workbook</a>
+      <div class="flex" style="gap:8px">
+        <button class="btn secondary" onclick="printReport()">Print report</button>
+        <a id="dlReport" class="btn secondary" href="#" download>Download report</a>
+        <a id="dl" class="btn" href="#" download>Download live Excel workbook</a>
+      </div>
     </div>
     <div class="kpi-row">
       <div class="kpi"><div class="l">Verdict</div><span id="rBadge" class="badge"></span></div>
@@ -300,6 +310,7 @@ function renderResults(res){
     `Passed ${res.points} of ${res.max} viability checks (${res.ratio}%).`;
   document.getElementById("rPeriods").innerHTML=res.periods.map(p=>`<span>${p}</span>`).join("");
   document.getElementById("dl").href=res.xlsx_url;
+  document.getElementById("dlReport").href=res.report_url;
 
   let mh="<tr><th>Metric</th><th>Category</th><th>Value</th><th>Status</th></tr>";
   res.metrics.forEach(m=>{
@@ -312,6 +323,10 @@ function renderResults(res){
   document.getElementById("rReport").innerHTML=res.report_html;
   document.getElementById("results").style.display="block";
   document.getElementById("results").scrollIntoView({behavior:"smooth"});
+}
+
+function printReport(){
+  window.print();
 }
 </script>
 </body>
