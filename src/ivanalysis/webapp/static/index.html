@@ -111,6 +111,11 @@
     <!-- shared assumptions -->
     <details>
       <summary>Assumptions (optional — enable CAPM / DCF / valuation)</summary>
+      <div class="flex" style="margin-top:10px">
+        <button class="btn secondary" type="button" onclick="suggestAssumptions()">✨ Suggest current assumptions</button>
+        <span class="muted" id="suggestStatus"></span>
+      </div>
+      <div id="suggestList" class="muted" style="margin-top:8px;display:none"></div>
       <div class="row" style="margin-top:10px">
         <div><label>Risk-free rate Rf <span class="hint">dec</span></label><input class="asn" data-k="risk_free_rate" placeholder="0.04"/></div>
         <div><label>Market return E(Rm) <span class="hint">dec</span></label><input class="asn" data-k="market_return" placeholder="0.09"/></div>
@@ -224,6 +229,35 @@ function collectGrid(){
   });
   return {name:document.getElementById("upname").value||PARSED.name||"Uploaded Company",
           mode:"private", periods, assumptions:getAssumptions()};
+}
+
+async function suggestAssumptions(){
+  let ticker = CURRENT_TAB==="public" ? document.getElementById("ticker").value.trim() : "";
+  let isPublic = CURRENT_TAB==="public";
+  if(isPublic && !ticker){
+    ticker = (window.prompt("Ticker for a live beta lookup (leave blank to skip beta):") || "").trim();
+  }
+  const status=document.getElementById("suggestStatus");
+  const list=document.getElementById("suggestList");
+  status.textContent="Looking up current Rf / market return / tax rate" + (ticker?` / beta for ${ticker.toUpperCase()}`:"") + "…";
+  list.style.display="none"; list.innerHTML="";
+  try{
+    const r=await fetch("/api/assumptions/suggest",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ticker, is_public:isPublic})});
+    if(!r.ok){ status.textContent="Couldn't fetch live assumptions right now."; return; }
+    const {suggestions}=await r.json();
+    status.textContent=suggestions.length?`Filled ${suggestions.length} field(s) — review before analyzing:`:"No live values could be retrieved; enter assumptions manually.";
+    suggestions.forEach(s=>{
+      const input=document.querySelector(`.asn[data-k="${s.field}"]`);
+      if(input) input.value=s.value;
+    });
+    if(suggestions.length){
+      list.style.display="block";
+      list.innerHTML=suggestions.map(s=>
+        `<div>• <b>${s.label}</b>: ${s.value} — <span>${s.source}</span>${s.asof?` (as of ${s.asof})`:""}${s.note?`<br><span class="hint">${s.note}</span>`:""}</div>`
+      ).join("");
+    }
+  }catch(e){ status.textContent="Couldn't fetch live assumptions right now."; }
 }
 
 async function analyze(){

@@ -22,6 +22,7 @@ import markdown as md
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse
 
+from ..assumptions_ai import suggest_assumptions
 from ..edgar import EdgarClient, analyze_ticker
 from ..excel import build_workbook
 from ..metrics import run_ratios
@@ -94,6 +95,13 @@ def api_ticker(payload: dict) -> dict:
         raise HTTPException(404, f"No usable fiscal periods found for {ticker}.")
     _merge_assumptions(company, payload.get("assumptions"))
     return _build_results(company)
+
+
+@app.post("/api/assumptions/suggest")
+def api_suggest_assumptions(payload: dict) -> dict:
+    ticker = (payload.get("ticker") or "").strip()
+    is_public = bool(payload.get("is_public", bool(ticker)))
+    return {"suggestions": suggest_assumptions(ticker or None, is_public)}
 
 
 @app.post("/api/parse")
