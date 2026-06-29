@@ -49,10 +49,12 @@ def _build_results(company) -> dict:
     slug = "".join(ch for ch in (company.ticker or company.name) if ch.isalnum()) or "company"
     xlsx = WORKDIR / f"{slug}_{token}.xlsx"
     build_workbook(company, xlsx)
-    RESULTS[token] = {"xlsx": xlsx, "name": slug}
+    report_md = generate_report(company)
+    report_path = WORKDIR / f"{slug}_{token}_report.md"
+    report_path.write_text(report_md, encoding="utf-8")
+    RESULTS[token] = {"xlsx": xlsx, "report_md": report_path, "name": slug}
 
-    report_html = md.markdown(generate_report(company),
-                              extensions=["tables", "fenced_code", "sane_lists"])
+    report_html = md.markdown(report_md, extensions=["tables", "fenced_code", "sane_lists"])
     score = score_viability(company)
     latest = run_ratios(company, len(company.periods) - 1)
     metrics = [{
@@ -66,6 +68,8 @@ def _build_results(company) -> dict:
         "periods": [p.label for p in company.periods],
         "metrics": metrics, "report_html": report_html,
         "xlsx_url": f"/api/download/{token}",
+        "report_url": f"/api/download/{token}/report",
+        "report_txt_url": f"/api/download/{token}/report.txt",
     }
 
 
@@ -135,6 +139,24 @@ def download(token: str):
     if not item or not Path(item["xlsx"]).exists():
         raise HTTPException(404, "Result expired or not found. Re-run the analysis.")
     return FileResponse(item["xlsx"], filename=f"{item['name']}.xlsx", media_type=XLSX_MIME)
+
+
+@app.get("/api/download/{token}/report")
+def download_report(token: str):
+    item = RESULTS.get(token)
+    if not item or not Path(item["report_md"]).exists():
+        raise HTTPException(404, "Result expired or not found. Re-run the analysis.")
+    return FileResponse(item["report_md"], filename=f"{item['name']}_report.md",
+                        media_type="text/markdown")
+
+
+@app.get("/api/download/{token}/report.txt")
+def download_report_txt(token: str):
+    item = RESULTS.get(token)
+    if not item or not Path(item["report_md"]).exists():
+        raise HTTPException(404, "Result expired or not found. Re-run the analysis.")
+    return FileResponse(item["report_md"], filename=f"{item['name']}_viability_report.txt",
+                        media_type="text/plain")
 
 
 def _merge_assumptions(company, assumptions) -> None:
