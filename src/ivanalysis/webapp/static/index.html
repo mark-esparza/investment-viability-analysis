@@ -6,72 +6,116 @@
 <title>Investment-Viability Analysis</title>
 <style>
   :root{
-    --bg:#0f172a; --panel:#ffffff; --ink:#0f172a; --muted:#64748b;
-    --line:#e2e8f0; --brand:#1f4e78; --brand2:#2563eb; --soft:#f1f5f9;
-    --good:#16a34a; --goodbg:#dcfce7; --bad:#dc2626; --badbg:#fee2e2;
-    --warn:#d97706; --warnbg:#fef3c7;
+    --bg:#eef0f2; --panel:#ffffff; --ink:#1a1d21; --muted:#6b7280;
+    --line:#dcdfe3; --charcoal:#1f2937; --accent:#0f5132; --gold:#8a6d3b; --maroon:#9f1239;
   }
   *{box-sizing:border-box}
-  body{margin:0;font:15px/1.55 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-       color:var(--ink);background:#f8fafc}
-  header{background:linear-gradient(135deg,#1f4e78,#2563eb);color:#fff;padding:26px 22px}
-  header h1{margin:0 0 4px;font-size:22px}
-  header p{margin:0;opacity:.9;font-size:13.5px}
-  .wrap{max-width:1080px;margin:0 auto;padding:22px}
-  .disclaimer{background:var(--warnbg);color:#7c4a03;border:1px solid #fde68a;
-       border-radius:8px;padding:9px 12px;font-size:12.5px;margin:14px 0}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
-       padding:18px;margin-bottom:18px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
-  .tabs{display:flex;gap:6px;margin-bottom:14px}
-  .tab{padding:9px 16px;border:1px solid var(--line);background:#fff;border-radius:9px;
-       cursor:pointer;font-weight:600;color:var(--muted)}
-  .tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}
-  label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 4px}
-  input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;
-       font-size:14px;background:#fff}
-  input:focus,select:focus{outline:2px solid #bfdbfe;border-color:var(--brand2)}
-  .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-  .btn{background:var(--brand2);color:#fff;border:0;border-radius:9px;padding:11px 20px;
-       font-size:14px;font-weight:700;cursor:pointer}
-  .btn:hover{filter:brightness(1.06)} .btn:disabled{opacity:.55;cursor:wait}
-  .btn.secondary{background:#fff;color:var(--brand2);border:1px solid var(--brand2)}
-  details{margin-top:12px;border:1px dashed var(--line);border-radius:9px;padding:10px 12px}
-  summary{cursor:pointer;font-weight:600;color:var(--brand);font-size:13.5px}
-  .hint{font-size:11.5px;color:var(--muted);font-weight:400}
-  .err{background:var(--badbg);color:#991b1b;border:1px solid #fecaca;border-radius:8px;
-       padding:10px 12px;margin-top:12px;display:none;white-space:pre-wrap}
-  .badge{display:inline-block;padding:6px 14px;border-radius:999px;font-weight:800;
-       letter-spacing:.3px;font-size:14px}
-  .v-VIABLE{background:var(--goodbg);color:var(--good)}
-  .v-CONDITIONAL{background:var(--warnbg);color:var(--warn)}
-  .v-NOT.VIABLE,.v-NOTVIABLE{background:var(--badbg);color:var(--bad)}
-  .chips span{display:inline-block;background:var(--soft);border:1px solid var(--line);
-       border-radius:7px;padding:3px 9px;margin:0 6px 6px 0;font-size:12.5px;color:var(--muted)}
-  table{border-collapse:collapse;width:100%;font-size:13.5px}
-  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left}
-  th{background:var(--soft);font-size:12px;color:var(--muted)}
-  .pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
-  .pill.good{background:var(--goodbg);color:var(--good)}
-  .pill.bad{background:var(--badbg);color:var(--bad)}
-  .pill.neu{background:var(--soft);color:var(--muted)}
+  body{margin:0;font:13.5px/1.5 'Helvetica Neue',Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  .hero{position:relative;background:#11151b;overflow:hidden}
+  .hero-inner{position:relative;max-width:1080px;margin:0 auto;padding:54px 30px 46px;color:#f3f4f6}
+  .hero-eyebrow{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#cbd5e1;margin-bottom:10px}
+  .hero h1{margin:0 0 10px;font-size:30px;font-weight:700;letter-spacing:.2px;max-width:560px}
+  .hero p{margin:0;max-width:480px;font-size:13.5px;color:#d6dae0;line-height:1.6}
+  .hero-art{position:absolute;right:48px;bottom:0;height:92%;width:auto}
+  header.bar{background:var(--charcoal);color:#f3f4f6;padding:10px 30px;display:flex;
+       align-items:baseline;justify-content:space-between;border-bottom:3px solid var(--gold)}
+  header.bar .brand{font-size:13px;font-weight:700;letter-spacing:.6px}
+  header.bar .tag{font-size:10.5px;color:#9ca3af;text-align:right}
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 30px}
+  .disclaimer{background:#f9fafb;color:var(--muted);border:1px solid var(--line);border-left:3px solid var(--gold);
+       padding:8px 14px;font-size:11px;margin:0 0 18px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:3px;
+       padding:18px 22px;margin-bottom:16px}
+  .card h2.section{font-size:11.5px;letter-spacing:.8px;text-transform:uppercase;
+       color:var(--muted);font-weight:700;margin:0 0 14px}
+  .tabs{display:flex;gap:0;margin-bottom:16px}
+  .tab{padding:7px 16px;cursor:pointer;font-weight:600;color:var(--muted);font-size:12px;
+       background:#f3f4f6;border:1px solid var(--line)}
+  .tab.active{background:var(--charcoal);color:#fff;border-color:var(--charcoal)}
+  label{display:block;font-size:10.5px;font-weight:700;color:var(--muted);margin:0 0 4px;letter-spacing:.3px}
+  input,select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:3px;
+       font-size:13px;background:#fff}
+  input:focus,select:focus{outline:2px solid #d1d5db;border-color:var(--charcoal)}
+  .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+  .btn{background:var(--charcoal);color:#fff;border:0;border-radius:3px;padding:9px 20px;
+       font-size:12.5px;font-weight:700;letter-spacing:.2px;cursor:pointer}
+  .btn:hover{filter:brightness(1.15)} .btn:disabled{opacity:.55;cursor:wait}
+  .btn.secondary{background:#fff;color:var(--charcoal);border:1px solid var(--charcoal)}
+  details{margin-top:12px;border:1px solid var(--line);border-radius:3px;padding:12px 14px}
+  summary{cursor:pointer;font-weight:700;color:var(--charcoal);font-size:12px;letter-spacing:.3px;
+       text-transform:uppercase}
+  .hint{font-size:11px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0}
+  .err{background:#fef2f2;color:#9f1239;border:1px solid #fecaca;border-radius:3px;
+       padding:10px 12px;margin-top:12px;display:none;white-space:pre-wrap;font-size:12.5px}
+  .badge{display:inline-block;padding:4px 12px;border-radius:0;font-weight:700;
+       letter-spacing:.4px;font-size:12px;border:1px solid;text-transform:uppercase}
+  .v-VIABLE{color:var(--accent);border-color:var(--accent);background:#f0fdf4}
+  .v-CONDITIONAL{color:var(--gold);border-color:var(--gold);background:#fffbeb}
+  .v-NOT.VIABLE,.v-NOTVIABLE{color:var(--maroon);border-color:var(--maroon);background:#fef2f2}
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);margin-bottom:4px}
+  .kpi{padding:12px 16px;border-right:1px solid var(--line)}
+  .kpi:last-child{border-right:0}
+  .kpi .l{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+  .chips span{display:inline-block;font-size:10.5px;color:var(--muted);border:1px solid var(--line);
+       padding:2px 8px;margin:8px 5px 0 0}
+  table{border-collapse:collapse;width:100%;font-size:12.5px}
+  th,td{border-bottom:1px solid var(--line);padding:8px 8px;text-align:left}
+  th{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:700;
+     background:#f9fafb}
+  .pill{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:0;letter-spacing:.3px;
+       border:1px solid;text-transform:uppercase}
+  .pill.good{color:var(--accent);border-color:var(--accent);background:#f0fdf4}
+  .pill.bad{color:var(--maroon);border-color:var(--maroon);background:#fef2f2}
+  .pill.neu{color:var(--muted);border-color:var(--line);background:#f9fafb}
   .grid-input{width:100%;padding:5px 6px;font-size:13px}
   .report{margin-top:8px}
-  .report h1{font-size:19px} .report h2{font-size:16px;margin-top:18px;
-       border-bottom:1px solid var(--line);padding-bottom:4px}
+  .report h1{font-size:18px} .report h2{font-size:14.5px;margin-top:18px;
+       border-bottom:1px solid var(--line);padding-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
   .report table{margin:8px 0}
-  .report blockquote{background:var(--warnbg);border-left:4px solid #fbbf24;margin:10px 0;
-       padding:8px 12px;color:#7c4a03;font-size:12.5px;border-radius:0 6px 6px 0}
-  .muted{color:var(--muted);font-size:12.5px}
+  .report blockquote{background:#fffbeb;border-left:3px solid var(--gold);margin:10px 0;
+       padding:8px 12px;color:#7c4a03;font-size:12.5px;border-radius:0}
+  .muted{color:var(--muted);font-size:12px}
   .spinner{display:none;margin-top:12px;color:var(--muted);font-size:13px}
   #results{display:none}
   .flex{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 </style>
 </head>
 <body>
-<header>
-  <h1>Investment-Viability Analysis</h1>
-  <p>SEC EDGAR &amp; uploaded statements &rarr; finance metrics &rarr; live-formula Excel + verdict</p>
+<header class="bar">
+  <div class="brand">INVESTMENT VIABILITY ANALYSIS</div>
+  <div class="tag">Educational use only<br/>Not investment advice</div>
 </header>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">SEC EDGAR &amp; statement data &rarr; finance metrics &rarr; viability opinion</div>
+    <h1>Know whether the numbers hold up before you commit.</h1>
+    <p>Analyze a public ticker or upload your own statements and get a credit-analyst-style
+       verdict, supporting ratios, and a live-formula Excel workbook — built for the decisions
+       that matter to your family's future.</p>
+  </div>
+  <svg class="hero-art" viewBox="0 0 260 330" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <ellipse cx="120" cy="318" rx="60" ry="9" fill="#000" opacity="0.3"/>
+    <path d="M96 210 C90 240 86 270 92 312 L106 312 C104 272 108 240 114 212 Z" fill="#39414f"/>
+    <path d="M128 210 C136 238 146 264 148 312 L134 312 C130 268 122 240 114 214 Z" fill="#4a5364"/>
+    <path d="M90 120 C88 100 100 86 121 86 C142 86 154 100 152 120 L150 214 L92 214 Z" fill="#4a5364"/>
+    <path d="M94 124 C78 140 72 168 76 196 L88 194 C86 168 92 144 104 130 Z" fill="#39414f"/>
+    <path d="M140 110 C158 100 170 84 174 64 L162 58 C158 76 148 90 132 100 Z" fill="#4a5364"/>
+    <circle cx="176" cy="58" r="9" fill="#4a5364"/>
+    <circle cx="121" cy="62" r="25" fill="#4a5364"/>
+    <path d="M109 68 Q121 78 133 68" stroke="#11151b" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="111" cy="56" r="2.6" fill="#11151b"/>
+    <circle cx="131" cy="56" r="2.6" fill="#11151b"/>
+    <path d="M104 80 C96 96 94 114 98 130 L110 128 C108 112 112 96 118 84 Z" fill="#caa24e"/>
+    <path d="M134 80 C146 92 154 108 156 124 L144 128 C142 110 136 96 126 84 Z" fill="#dab85f"/>
+    <ellipse cx="121" cy="48" rx="20" ry="26" fill="#dab85f"/>
+    <path d="M108 38 C92 24 78 18 64 18 L64 28 C78 30 90 36 102 48 Z" fill="#caa24e"/>
+    <path d="M134 38 C150 22 166 16 180 18 L178 28 C164 28 152 34 142 48 Z" fill="#dab85f"/>
+    <circle cx="121" cy="16" r="16" fill="#dab85f"/>
+    <path d="M112 20 Q121 28 130 20" stroke="#11151b" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <circle cx="114" cy="11" r="2.2" fill="#11151b"/>
+    <circle cx="128" cy="11" r="2.2" fill="#11151b"/>
+  </svg>
+</div>
 
 <div class="wrap">
   <div class="disclaimer">
@@ -134,20 +178,20 @@
 
   <!-- RESULTS -->
   <div class="card" id="results">
-    <div class="flex" style="justify-content:space-between">
-      <div class="flex">
-        <h2 style="margin:0" id="rName"></h2>
-        <span id="rBadge" class="badge"></span>
-      </div>
-      <a id="dl" class="btn" href="#" download>⬇ Download live Excel workbook</a>
+    <div class="flex" style="justify-content:space-between;margin-bottom:14px">
+      <h2 class="section" style="margin:0" id="rName"></h2>
+      <a id="dl" class="btn" href="#" download>Download live Excel workbook</a>
     </div>
-    <p class="muted" id="rScore" style="margin:8px 0 4px"></p>
-    <div class="chips" id="rPeriods"></div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="l">Verdict</div><span id="rBadge" class="badge"></span></div>
+      <div class="kpi"><div class="l">Score</div><div id="rScore" class="muted" style="font-size:13px;font-weight:600;color:var(--ink)"></div></div>
+      <div class="kpi" style="grid-column:span 2"><div class="l">Periods analyzed</div><div class="chips" id="rPeriods" style="margin-top:0"></div></div>
+    </div>
 
-    <h2 style="font-size:15px;margin-top:14px">Key metrics (latest period)</h2>
+    <h2 class="section" style="margin-top:22px">Key metrics — latest period</h2>
     <div style="overflow:auto"><table id="rMetrics"></table></div>
 
-    <h2 style="font-size:15px;margin-top:18px">Full report</h2>
+    <h2 class="section" style="margin-top:22px">Full report</h2>
     <div class="report" id="rReport"></div>
   </div>
 
