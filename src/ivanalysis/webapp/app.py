@@ -68,6 +68,7 @@ def _build_results(company) -> dict:
         "metrics": metrics, "report_html": report_html,
         "xlsx_url": f"/api/download/{token}",
         "report_url": f"/api/download/{token}/report",
+        "report_txt_url": f"/api/download/{token}/report.txt",
     }
 
 
@@ -139,6 +140,15 @@ def download_report(token: str):
         raise HTTPException(404, "Result expired or not found. Re-run the analysis.")
     return FileResponse(item["report_md"], filename=f"{item['name']}_report.md",
                         media_type="text/markdown")
+
+
+@app.get("/api/download/{token}/report.txt")
+def download_report_txt(token: str):
+    item = RESULTS.get(token)
+    if not item or not Path(item["report_md"]).exists():
+        raise HTTPException(404, "Result expired or not found. Re-run the analysis.")
+    return FileResponse(item["report_md"], filename=f"{item['name']}_viability_report.txt",
+                        media_type="text/plain")
 
 
 def _merge_assumptions(company, assumptions) -> None:

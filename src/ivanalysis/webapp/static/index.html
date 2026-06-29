@@ -203,6 +203,10 @@
 
     <h2 class="section" style="margin-top:22px">Full report</h2>
     <div class="report" id="rReport"></div>
+
+    <div class="flex" style="justify-content:center;margin-top:22px;padding-top:14px;border-top:1px solid var(--line)">
+      <a id="dlReportTxt" class="btn secondary" href="#" download>Download investment viability report (.txt)</a>
+    </div>
   </div>
 
   <p class="muted" style="text-align:center">
@@ -311,6 +315,7 @@ function renderResults(res){
   document.getElementById("rPeriods").innerHTML=res.periods.map(p=>`<span>${p}</span>`).join("");
   document.getElementById("dl").href=res.xlsx_url;
   document.getElementById("dlReport").href=res.report_url;
+  document.getElementById("dlReportTxt").href=res.report_txt_url;
 
   let mh="<tr><th>Metric</th><th>Category</th><th>Value</th><th>Status</th></tr>";
   res.metrics.forEach(m=>{
