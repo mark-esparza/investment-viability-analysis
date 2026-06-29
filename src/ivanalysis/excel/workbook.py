@@ -14,6 +14,7 @@ from typing import Optional
 
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, LineChart, Reference
+from openpyxl.chart.label import DataLabelList
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import absolute_coordinate, get_column_letter, quote_sheetname
 from openpyxl.workbook.defined_name import DefinedName
@@ -111,6 +112,7 @@ class WorkbookBuilder:
         ws.cell(row=hr, column=1).font = H2
         ws.cell(row=hr, column=1).fill = HDR_FILL
 
+        self._inputs_rowmap: dict[str, int] = {}
         row = hr + 1
         for section, group in (
             ("Income Statement", INCOME_FIELDS),
@@ -125,6 +127,7 @@ class WorkbookBuilder:
             row += 1
             for attr, _label, _stmt, name in group:
                 ws.cell(row=row, column=1, value=name)
+                self._inputs_rowmap[attr] = row
                 for j, p in enumerate(periods):
                     coord = f"{get_column_letter(2 + j)}{row}"
                     val = getattr(p, attr)
@@ -518,47 +521,94 @@ class WorkbookBuilder:
         ws = self.wb.create_sheet("Charts")
         ws.cell(row=1, column=1, value="Charts").font = TITLE
         periods = self.company.periods
+        n = len(periods)
+
+        def _labelled(chart) -> None:
+            chart.dataLabels = DataLabelList(showVal=True, numFmt="#,##0.00")
+            for s in chart.series:
+                s.dLbls = DataLabelList(showVal=True, numFmt="#,##0.00")
 
         # 1) Ratio trends (ROE, Net margin, Current ratio) from Ratios sheet.
         rmap = getattr(self, "_ratios_rowmap", {})
         wanted = ["Return on Equity (ROE)", "Net Profit Margin", "Current Ratio"]
         rows = [rmap[w] for w in wanted if w in rmap]
-        if rows and len(periods) >= 2:
+        if rows and n >= 2:
             chart = LineChart()
             chart.title = "Key ratio trends"
             chart.style = 12
             chart.height = 8
             chart.width = 16
-            data = Reference(self.wb["Ratios"], min_col=3, max_col=2 + len(periods),
-                             min_row=min(rows), max_row=max(rows))
-            cats = Reference(self.wb["Ratios"], min_col=3, max_col=2 + len(periods),
-                             min_row=3, max_row=3)
-            # Build series row-by-row so labels line up with metric names.
-            for rr, name in zip(rows, wanted):
-                ref = Reference(self.wb["Ratios"], min_col=3, max_col=2 + len(periods),
+            chart.y_axis.title = "Ratio value"
+            chart.x_axis.title = "Period"
+            cats = Reference(self.wb["Ratios"], min_col=3, max_col=2 + n, min_row=3, max_row=3)
+            for rr in rows:
+                ref = Reference(self.wb["Ratios"], min_col=3, max_col=2 + n,
                                 min_row=rr, max_row=rr)
                 chart.add_data(ref, from_rows=True, titles_from_data=False)
             chart.set_categories(cats)
             ws.add_chart(chart, "A3")
 
-        # 2) Intrinsic vs market value bar.
-        ws.cell(row=22, column=1, value="Intrinsic vs Market (per share)")
-        ws.cell(row=23, column=1, value="Intrinsic")
-        ws.cell(row=23, column=2, value=f"={self._intrinsic_cell}").number_format = "#,##0.00"
-        ws.cell(row=24, column=1, value="Market")
+        # 2) Revenue & net income trend (Inputs sheet), side-by-side with (1).
+        imap = getattr(self, "_inputs_rowmap", {})
+        if n >= 2 and "revenue" in imap and "net_income" in imap:
+            inc_chart = LineChart()
+            inc_chart.title = "Revenue & net income trend"
+            inc_chart.style = 12
+            inc_chart.height = 8
+            inc_chart.width = 16
+            inc_chart.y_axis.title = "$"
+            inc_chart.x_axis.title = "Period"
+            inputs_ws = self.wb["Inputs"]
+            cats = Reference(inputs_ws, min_col=2, max_col=1 + n, min_row=3, max_row=3)
+            for attr in ("revenue", "net_income"):
+                ref = Reference(inputs_ws, min_col=2, max_col=1 + n,
+                                min_row=imap[attr], max_row=imap[attr])
+                inc_chart.add_data(ref, from_rows=True, titles_from_data=False)
+            inc_chart.set_categories(cats)
+            ws.add_chart(inc_chart, "K3")
+
+        # 3) Capital structure: long-term debt vs equity, per period.
+        if n >= 1 and "long_term_debt" in imap and "total_equity" in imap:
+            cap_chart = BarChart()
+            cap_chart.type = "col"
+            cap_chart.grouping = "clustered"
+            cap_chart.title = "Capital structure: debt vs equity"
+            cap_chart.height = 8
+            cap_chart.width = 16
+            cap_chart.y_axis.title = "$"
+            inputs_ws = self.wb["Inputs"]
+            cats = Reference(inputs_ws, min_col=2, max_col=1 + n, min_row=3, max_row=3)
+            for attr in ("long_term_debt", "total_equity"):
+                ref = Reference(inputs_ws, min_col=2, max_col=1 + n,
+                                min_row=imap[attr], max_row=imap[attr])
+                cap_chart.add_data(ref, from_rows=True, titles_from_data=False)
+            cap_chart.set_categories(cats)
+            _labelled(cap_chart)
+            ws.add_chart(cap_chart, "A22")
+
+        # 4) Intrinsic vs market value bar.
+        ws.cell(row=41, column=1, value="Intrinsic vs Market (per share)").font = BOLD
+        ws.cell(row=42, column=1, value="Intrinsic")
+        ws.cell(row=42, column=2, value=f"={self._intrinsic_cell}").number_format = "#,##0.00"
+        ws.cell(row=43, column=1, value="Market")
         price_ref = "Assumptions!" + self.assumption_refs["price_per_share"].split("!")[-1]
-        ws.cell(row=24, column=2, value=f"={price_ref}").number_format = "#,##0.00"
+        ws.cell(row=43, column=2, value=f"={price_ref}").number_format = "#,##0.00"
+        ws.cell(row=44, column=1,
+                value="Note: \"Market\" shows $0.00 until Price / Share is entered "
+                      "on the Assumptions sheet.").font = MUTED
         bar = BarChart()
-        bar.title = "Intrinsic vs Market value/share"
+        bar.title = "Intrinsic vs market value/share"
         bar.height = 7
         bar.width = 12
-        bar_data = Reference(ws, min_col=2, min_row=23, max_row=24)
-        bar_cats = Reference(ws, min_col=1, min_row=23, max_row=24)
+        bar.y_axis.title = "$/share"
+        bar_data = Reference(ws, min_col=2, min_row=42, max_row=43)
+        bar_cats = Reference(ws, min_col=1, min_row=42, max_row=43)
         bar.add_data(bar_data, titles_from_data=False)
         bar.set_categories(bar_cats)
-        ws.add_chart(bar, "D22")
+        _labelled(bar)
+        ws.add_chart(bar, "K22")
 
-        # 3) NPV profile line chart from CapBudget.
+        # 5) NPV profile line chart from CapBudget.
         if getattr(self, "_npv_profile_range", None):
             hdr, first, last = self._npv_profile_range
             cb = self.wb["CapBudget"]
@@ -566,13 +616,16 @@ class WorkbookBuilder:
             npv_chart.title = "NPV profile (NPV vs discount rate)"
             npv_chart.height = 8
             npv_chart.width = 14
+            npv_chart.x_axis.title = "Discount rate"
+            npv_chart.y_axis.title = "NPV ($)"
             data = Reference(cb, min_col=2, min_row=hdr, max_row=last)
             cats = Reference(cb, min_col=1, min_row=first, max_row=last)
             npv_chart.add_data(data, titles_from_data=True)
             npv_chart.set_categories(cats)
-            ws.add_chart(npv_chart, "A40")
+            _labelled(npv_chart)
+            ws.add_chart(npv_chart, "A60")
 
-        self._disclaimer_row(ws, 60, span=6)
+        self._disclaimer_row(ws, 78, span=6)
         self._setup_print(ws, title_row=1)
 
 
