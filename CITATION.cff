@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+type: software
+title: "Investment-Viability Analysis"
+abstract: >-
+  Ingests a company's financials from SEC EDGAR filings or user supplied
+  statements, computes standard finance ratios, valuation, and capital
+  budgeting metrics, and produces a live formula Excel workbook and a
+  narrative report with a viable, conditional, or not viable verdict.
+  Educational analysis only, not investment, tax, or legal advice.
+authors:
+  - family-names: Esparza
+    given-names: Mark
+    orcid: "https://orcid.org/0009-0000-5171-102X"
+repository-code: "https://github.com/mark-esparza/investment-viability-analysis"
+url: "https://mark-esparza.github.io"
+license: MIT
+version: 0.1.0
+keywords:
+  - financial analysis
+  - SEC EDGAR
+  - valuation
+  - capital budgeting
+  - Excel
